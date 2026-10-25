@@ -1,0 +1,26 @@
+id: 003-stateful
+title: 第二次
+difficulty: 3
+tags:
+  - 测试隔离
+  - 可变默认参数
+intro: collect 每次调用应该返回一个只包含本次元素的新列表。
+broken_code: |
+  def collect(item, bucket=[]):        # 可变默认参数：这个 [] 只创建一次
+      bucket.append(item)
+      return bucket
+correct_code: |
+  def collect(item, bucket=None):
+      if bucket is None:
+          bucket = []
+      bucket.append(item)
+      return bucket
+hints:
+  - 只调用一次是发现不了的
+  - 试试连续调用两次，比较两次的返回值
+reference_test: |
+  from target import collect
+
+  def test_two_calls_are_independent():
+      assert collect(1) == [1]
+      assert collect(2) == [2]

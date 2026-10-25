@@ -1,0 +1,23 @@
+id: 002-empty-input
+title: 空
+difficulty: 2
+tags:
+  - 异常流
+  - 等价类划分
+intro: average 应该返回列表的平均数。当列表为空时，应该返回 None 而不是崩溃。
+broken_code: |
+  def average(nums):
+      return sum(nums) / len(nums)      # 空列表会 ZeroDivisionError
+correct_code: |
+  def average(nums):
+      if not nums:
+          return None
+      return sum(nums) / len(nums)
+hints:
+  - 空列表是一种合法的输入吗
+  - 想想 len([]) 是多少
+reference_test: |
+  from target import average
+
+  def test_empty_input_returns_none():
+      assert average([]) is None

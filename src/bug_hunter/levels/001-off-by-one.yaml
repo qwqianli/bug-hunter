@@ -1,0 +1,28 @@
+id: 001-off-by-one
+title: 差一
+difficulty: 1
+tags:
+  - 边界值
+intro: find_max 应该返回列表里最大的数。它大多数时候是对的。
+broken_code: |
+  def find_max(nums):
+      result = nums[0]
+      for i in range(1, len(nums) - 1):     # 少遍历最后一个元素
+          if nums[i] > result:
+              result = nums[i]
+      return result
+correct_code: |
+  def find_max(nums):
+      result = nums[0]
+      for i in range(1, len(nums)):
+          if nums[i] > result:
+              result = nums[i]
+      return result
+hints:
+  - 试一个最大值在最后一位的列表
+  - 试一个只有两个元素的列表
+reference_test: |
+  from target import find_max
+
+  def test_max_at_last_position():
+      assert find_max([1, 3, 5]) == 5

@@ -1,0 +1,21 @@
+# 虚拟环境
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# 判题沙箱（玩家工作区）
+_playground/
+
+# 测试缓存
+.pytest_cache/
+.coverage
+
+# 编辑器
+.vscode/
+.idea/
