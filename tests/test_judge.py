@@ -143,3 +143,67 @@ def test_missing_test_file_is_internal(tmp_path):
     assert result.status is JudgeStatus.INTERNAL
     assert result.passed is False
     assert "FileNotFoundError" in result.detail
+
+
+# ---- P5 追加：三条错误分支。只追加，上面 10 条原样不动 -----------------------
+# 这些分支要造出「pytest 自己出错」的现场，真实复现成本高而且不可重复，
+# 所以用假 _run_once 替身：这里测的是状态机映射，不是 pytest 本身
+
+
+def test_round2_runner_error_is_internal(monkeypatch, tmp_path):
+    """第一轮正常失败、第二轮判题器自己出错 → INTERNAL，而不是误报。"""
+    import bug_hunter.judge as judge_module
+
+    def fake_run_once(test_path, target_code, timeout):
+        if target_code == "CORRECT":
+            raise FileNotFoundError("第二轮复制测试文件失败")
+        return 1, "1 failed"
+
+    monkeypatch.setattr(judge_module, "_run_once", fake_run_once)
+    result = judge_module.judge("BROKEN", "CORRECT", tmp_path / "test_x.py")
+    assert result.status is JudgeStatus.INTERNAL
+    assert result.round1_rc == 1
+
+
+def test_round2_timeout_keeps_round1_rc(monkeypatch, tmp_path):
+    """第一轮有失败（rc=1）、第二轮超时 → TIMEOUT，round1_rc 保持 1。"""
+    import bug_hunter.judge as judge_module
+
+    def fake_run_once(test_path, target_code, timeout):
+        if target_code == "CORRECT":
+            return -1, ""
+        return 1, "1 failed"
+
+    monkeypatch.setattr(judge_module, "_run_once", fake_run_once)
+    result = judge_module.judge("BROKEN", "CORRECT", tmp_path / "test_x.py")
+    assert result.status is JudgeStatus.TIMEOUT
+    assert result.round1_rc == 1
+    assert result.round2_rc == -1
+
+
+def test_pytest_error_returncodes_map_to_internal(monkeypatch, tmp_path):
+    """rc 3/4（pytest 内部错误/被中断）→ INTERNAL；第二轮的非零非一同样要映射对。"""
+    import bug_hunter.judge as judge_module
+
+    # 第一轮就返回 3/4：绝不能误判成过关
+    for rc in (3, 4):
+        def fake_round1(test_path, target_code, timeout, rc=rc):
+            return rc, ""
+        monkeypatch.setattr(judge_module, "_run_once", fake_round1)
+        result = judge_module.judge("BROKEN", "CORRECT", tmp_path / "test_x.py")
+        assert result.status is JudgeStatus.INTERNAL, f"第一轮 rc={rc} 应映射为 INTERNAL"
+        assert result.passed is False
+
+    # 第一轮正常失败后，第二轮的 2/5/3/4 分别对应什么状态
+    for rc2, expected in [
+        (2, JudgeStatus.TEST_SYNTAX),
+        (5, JudgeStatus.NO_TESTS),
+        (3, JudgeStatus.INTERNAL),
+        (4, JudgeStatus.INTERNAL),
+    ]:
+        def fake_round2(test_path, target_code, timeout, rc2=rc2):
+            return (1, "1 failed") if target_code == "BROKEN" else (rc2, "")
+        monkeypatch.setattr(judge_module, "_run_once", fake_round2)
+        result = judge_module.judge("BROKEN", "CORRECT", tmp_path / "test_x.py")
+        assert result.status is expected, f"第二轮 rc={rc2} 应映射为 {expected}"
+        assert result.passed is False

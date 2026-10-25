@@ -19,3 +19,6 @@ _playground/
 # 编辑器
 .vscode/
 .idea/
+
+# 开发过程文档，不随仓库发布
+docs/dev/
