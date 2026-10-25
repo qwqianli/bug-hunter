@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "一个不能改代码、只能写测试来通关的游戏"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["pyyaml>=6.0"]
+dependencies = ["pyyaml>=6.0", "pytest>=8.0"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]

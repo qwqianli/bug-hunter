@@ -5,6 +5,7 @@
 """
 
 import enum
+import importlib.util
 import shutil
 import subprocess
 import sys
@@ -55,6 +56,14 @@ def judge(
     接收两段代码（而不是关卡对象）是刻意的：判题器要在没有关卡系统的
     情况下独立运行和被测试。任何情况下都不抛异常，一律返回 JudgeResult。
     """
+    # 宿主环境缺 pytest 时，子进程只会返回非 0，会被误映射成「误报」——
+    # 让正确的测试背锅。起子进程前先查出这种环境问题，给出能动手解决的提示
+    if importlib.util.find_spec("pytest") is None:
+        return JudgeResult(
+            passed=False,
+            status=JudgeStatus.INTERNAL,
+            message="这个游戏需要一个能运行 pytest 的 Python 环境，请先安装：pip install pytest",
+        )
     try:
         rc1, detail1 = _run_once(test_path, broken_code, timeout)
     except OSError as exc:

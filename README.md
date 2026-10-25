@@ -19,13 +19,18 @@
 
 ## 安装
 
-需要 Python 3.10+。判题以子进程方式运行 pytest，建议连同 dev 附加依赖一起安装。
-
-获取源码（发布包或 git clone）后，在项目根目录执行：
+需要 Python 3.10+。
 
 ```bash
+pip install bug-hunter
+```
+
+如果你要从源码开发：
+
+```bash
+git clone https://github.com/qwqianli/bug-hunter.git
+cd bug-hunter
 pip install -e ".[dev]"
-bug-hunter list
 ```
 
 ## 开始玩
@@ -162,7 +167,6 @@ boundary 边界值
 - 只支持 pytest，不支持 unittest 或其他测试框架。
 - 判题在本地执行，不做沙箱隔离：测试代码就是本机代码，不要用这个游戏运行来路不明的关卡。
 - 进度存档没有文件锁，两个终端同时玩会互相覆盖。
-- 运行环境需要能 `import pytest`（判题以子进程运行 pytest），所以安装建议带上 dev 附加依赖。
 
 ## 自己出题
 

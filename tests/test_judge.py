@@ -207,3 +207,17 @@ def test_pytest_error_returncodes_map_to_internal(monkeypatch, tmp_path):
         result = judge_module.judge("BROKEN", "CORRECT", tmp_path / "test_x.py")
         assert result.status is expected, f"第二轮 rc={rc2} 应映射为 {expected}"
         assert result.passed is False
+
+
+# ---- P5.1 追加：宿主环境缺 pytest 的兜底分支 ---------------------------------
+
+
+def test_missing_pytest_environment_is_internal(monkeypatch, tmp_path):
+    """宿主没有 pytest：给可操作的提示，而不是把正确的测试判成误报。"""
+    import importlib.util
+
+    monkeypatch.setattr(importlib.util, "find_spec", lambda name: None)
+    test_file = make_test_file(tmp_path, "def test_a():\n    pass\n")
+    result = judge(BROKEN_FIND_MAX, CORRECT_FIND_MAX, test_file)
+    assert result.status is JudgeStatus.INTERNAL
+    assert "pytest" in result.message
