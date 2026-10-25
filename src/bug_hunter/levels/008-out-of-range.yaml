@@ -1,0 +1,25 @@
+id: 008-out-of-range
+title: 越界
+difficulty: 2
+tags:
+  - exception
+  - 异常流
+  - 越界
+intro: nth 返回列表第 n 个元素（从 0 开始数）。n 超出范围时应该返回 None——负数也算超出范围。
+broken_code: |
+  def nth(items, n):
+      return items[n]    # 调用方传来的 n，一定在范围内吗
+correct_code: |
+  def nth(items, n):
+      if 0 <= n < len(items):
+          return items[n]
+      return None
+hints:
+  - 如果 n 是负数呢
+  - 如果列表比 n 短呢
+reference_test: |
+  from target import nth
+
+  def test_out_of_range_returns_none():
+      assert nth([10, 20], 5) is None
+      assert nth([10, 20], -1) is None

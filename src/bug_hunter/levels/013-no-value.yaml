@@ -1,0 +1,25 @@
+id: 013-no-value
+title: 没有值
+difficulty: 3
+tags:
+  - contract
+  - 类型与契约
+  - None传播
+intro: dig 从两层嵌套的字典里取值。任何一层不存在时，都应该返回 default，而不是崩溃。
+broken_code: |
+  def dig(d, k1, k2, default=None):
+      return d.get(k1).get(k2, default)    # 中间那一层不存在时，这条链会怎样
+correct_code: |
+  def dig(d, k1, k2, default=None):
+      first = d.get(k1)
+      if first is None:
+          return default
+      return first.get(k2, default)
+hints:
+  - 中间那一层不存在时会返回什么
+  - None 上面还能调用 .get 吗
+reference_test: |
+  from target import dig
+
+  def test_missing_first_layer():
+      assert dig({"x": 1}, "a", "b") is None

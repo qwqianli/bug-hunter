@@ -1,0 +1,33 @@
+id: 010-cache
+title: 缓存
+difficulty: 3
+tags:
+  - isolation
+  - 测试隔离
+  - 模块级缓存
+intro: price_of 查水果单价，结果会被缓存。不管查几次、按什么顺序查，同一个问题的答案应该一致。
+broken_code: |
+  cache = {}
+
+  def price_of(fruit):
+      if cache:    # 查过一次之后，这里就总有东西了
+          return list(cache.values())[0]
+      cache[fruit] = {"apple": 3, "banana": 5}[fruit]
+      return cache[fruit]
+correct_code: |
+  cache = {}
+
+  def price_of(fruit):
+      if fruit in cache:
+          return cache[fruit]
+      cache[fruit] = {"apple": 3, "banana": 5}[fruit]
+      return cache[fruit]
+hints:
+  - 测一次是看不出来的
+  - 用两组不同的参数连续调用两次
+reference_test: |
+  from target import price_of
+
+  def test_different_fruits():
+      assert price_of("apple") == 3
+      assert price_of("banana") == 5

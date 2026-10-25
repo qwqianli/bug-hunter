@@ -17,6 +17,9 @@ sys.path.insert(0, str(ROOT / "src"))
 from bug_hunter.judge import judge  # noqa: E402
 from bug_hunter.level import load_all_levels  # noqa: E402
 
+# 六类教学点的展示顺序（定义见 docs/关卡设计规范.md），汇总按这个顺序打印
+_CATEGORY_ORDER = ["boundary", "exception", "isolation", "numeric", "contract", "sideeffect"]
+
 
 def main() -> int:
     levels_dir = ROOT / "src" / "bug_hunter" / "levels"
@@ -24,14 +27,18 @@ def main() -> int:
     print(f"共 {len(levels)} 关\n")
 
     failed = 0
+    category_count: dict[str, int] = {}
     for lv in levels:
         with tempfile.TemporaryDirectory() as tmp:
             test_file = Path(tmp) / "test_reference.py"
             test_file.write_text(lv.reference_test, encoding="utf-8")
+            # judge 已是严格三参数签名；这里显式取 Level 的两段代码传入
             result = judge(lv.broken_code, lv.correct_code, test_file)
 
-        flag = "OK  " if result.passed else "FAIL"
-        print(f"[{flag}] {lv.id:<20} {lv.title:<8} -> {result.status.name}")
+        # 分类代号约定写在 tags 第一位（见 docs/关卡设计规范.md）
+        category = lv.tags[0] if lv.tags else "uncategorized"
+        category_count[category] = category_count.get(category, 0) + 1
+        print(f"[{category:<10}] {lv.id:<20} {lv.title:<8} -> {result.status.name}")
 
         if not result.passed:
             failed += 1
@@ -41,11 +48,20 @@ def main() -> int:
                 print(f"        输出:\n{first_lines}\n")
 
     print()
+    print(_summary(category_count))
     if failed:
         print(f"[FAIL] {failed} 个关卡不合格，修完再发布")
         return 1
     print("[OK] 所有关卡自检通过")
     return 0
+
+
+def _summary(category_count: dict[str, int]) -> str:
+    """按规范里六类的顺序汇总；不在六类里的代号排在最后，不被静默吞掉。"""
+    known = [name for name in _CATEGORY_ORDER if name in category_count]
+    extra = sorted(set(category_count) - set(_CATEGORY_ORDER))
+    parts = [f"{name} {category_count[name]}" for name in known + extra]
+    return "按分类汇总：" + " / ".join(parts)
 
 
 if __name__ == "__main__":

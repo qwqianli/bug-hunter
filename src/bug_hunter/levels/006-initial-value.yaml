@@ -1,0 +1,30 @@
+id: 006-initial-value
+title: 起点
+difficulty: 1
+tags:
+  - boundary
+  - 边界值
+  - 初始值
+intro: max_value 应该返回列表里最大的数。如果列表里全是负数，答案还是零吗？
+broken_code: |
+  def max_value(nums):
+      result = 0              # 用 0 做起点：一旦全是负数，答案就错了
+      for n in nums:
+          if n > result:
+              result = n
+      return result
+correct_code: |
+  def max_value(nums):
+      result = nums[0]        # 起点必须来自数据本身，不能拍脑袋定
+      for n in nums:
+          if n > result:
+              result = n
+      return result
+hints:
+  - 如果列表里全是负数，0 会不会比它们都大
+  - 试试一个全是负数的列表
+reference_test: |
+  from target import max_value
+
+  def test_all_negative():
+      assert max_value([-5, -3]) == -3

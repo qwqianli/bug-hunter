@@ -2,6 +2,7 @@ id: 002-empty-input
 title: 空
 difficulty: 2
 tags:
+  - exception
   - 异常流
   - 等价类划分
 intro: average 应该返回列表的平均数。当列表为空时，应该返回 None 而不是崩溃。

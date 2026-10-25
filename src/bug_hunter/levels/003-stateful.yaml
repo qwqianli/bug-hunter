@@ -2,6 +2,7 @@ id: 003-stateful
 title: 第二次
 difficulty: 3
 tags:
+  - isolation
   - 测试隔离
   - 可变默认参数
 intro: collect 每次调用应该返回一个只包含本次元素的新列表。

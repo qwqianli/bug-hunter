@@ -1,0 +1,22 @@
+id: 012-integer-division
+title: 整数除法
+difficulty: 2
+tags:
+  - numeric
+  - 数值精度
+  - 整数除法
+intro: percent 把得分换算成 0-100 的百分比整数，按四舍五入取整。
+broken_code: |
+  def percent(score, total):
+      return score * 100 // total    # 整除，小数部分去哪了
+correct_code: |
+  def percent(score, total):
+      return round(score * 100 / total)
+hints:
+  - 整除和四舍五入，什么时候结果不一样
+  - 试试一个除不尽的分数
+reference_test: |
+  from target import percent
+
+  def test_rounding_not_truncation():
+      assert percent(2, 3) == 67

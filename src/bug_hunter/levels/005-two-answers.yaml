@@ -1,0 +1,27 @@
+id: 005-two-answers
+title: 两种答案
+difficulty: 5
+tags:
+  - contract
+  - 类型与契约
+intro: parse_count 把字符串解析成整数。按约定，解析失败时调用方应该拿到 0。
+broken_code: |
+  def parse_count(text):
+      try:
+          return int(text)
+      except ValueError:
+          return None    # 约定要的是 0，这里给的是什么
+correct_code: |
+  def parse_count(text):
+      try:
+          return int(text)
+      except ValueError:
+          return 0
+hints:
+  - 非数字字符串会走哪条路
+  - 返回值的类型一直一样吗
+reference_test: |
+  from target import parse_count
+
+  def test_bad_input_returns_zero():
+      assert parse_count("abc") == 0

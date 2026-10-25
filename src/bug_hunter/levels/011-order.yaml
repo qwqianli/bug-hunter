@@ -1,0 +1,28 @@
+id: 011-order
+title: 顺序
+difficulty: 4
+tags:
+  - isolation
+  - 测试隔离
+  - 测试顺序
+intro: add_record 记录一条数据并返回记录列表。每次调用返回的，应该只包含这一次的新记录。
+broken_code: |
+  records = []
+
+  def add_record(text):
+      records.append(text)    # 所有调用的记录，都堆在同一个列表里
+      return records
+correct_code: |
+  def add_record(text):
+      return [text]
+hints:
+  - 单独跑这个测试试试，再和别的测试一起跑
+  - 有没有东西是两次调用共享的
+reference_test: |
+  from target import add_record
+
+  def test_first_call():
+      assert add_record("a") == ["a"]
+
+  def test_second_call():
+      assert add_record("b") == ["b"]

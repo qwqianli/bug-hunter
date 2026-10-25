@@ -1,0 +1,25 @@
+id: 009-wrong-type
+title: 错误的类型
+difficulty: 3
+tags:
+  - exception
+  - 等价类划分
+intro: to_int 把字符串转成整数，转不成时返回 -1。首尾带空格的数字（如 " 12 "）也算能转的。
+broken_code: |
+  def to_int(text):
+      if text.isdigit():    # 这个判断会把哪些输入挡在外面
+          return int(text)
+      return -1
+correct_code: |
+  def to_int(text):
+      if text.strip().isdigit():
+          return int(text.strip())
+      return -1
+hints:
+  - '"12" 和 " 12 " 是同一个等价类吗'
+  - 试试前后带空格的输入
+reference_test: |
+  from target import to_int
+
+  def test_surrounding_spaces_are_valid():
+      assert to_int(" 12 ") == 12

@@ -1,0 +1,28 @@
+id: 015-no-order-guarantee
+title: 顺序不保证
+difficulty: 3
+tags:
+  - sideeffect
+  - 副作用
+  - 顺序依赖
+intro: first_matching_key 返回第一个值匹配的键。「第一个」指键里最小的那个（按字典序），不是先插入的那个。
+broken_code: |
+  def first_matching_key(d, value):
+      for k in d:    # 谁排在前面就返回谁吗
+          if d[k] == value:
+              return k
+      return None
+correct_code: |
+  def first_matching_key(d, value):
+      for k in sorted(d):
+          if d[k] == value:
+              return k
+      return None
+hints:
+  - 如果两个键都满足条件，返回哪个
+  - 这个顺序是谁保证的
+reference_test: |
+  from target import first_matching_key
+
+  def test_smallest_key_wins():
+      assert first_matching_key({"b": 1, "a": 1}, 1) == "a"

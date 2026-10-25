@@ -53,11 +53,13 @@ def test_load_minimal_level(tmp_path):
 
 def test_builtin_levels_all_load():
     levels = load_all_levels(LEVELS_DIR)
-    assert [lv.id for lv in levels] == [
-        "001-off-by-one",
-        "002-empty-input",
-        "003-stateful",
-    ]
+    ids = [lv.id for lv in levels]
+    # P3 扩到 15 关后这里不再钉死完整清单：只要求老三关还在，
+    # 顺序永远符合 (difficulty, id) 升序
+    for old_id in ("001-off-by-one", "002-empty-input", "003-stateful"):
+        assert old_id in ids
+    keys = [(lv.difficulty, lv.id) for lv in levels]
+    assert keys == sorted(keys)
     # 每一关的两段代码必须真的有差异，否则关卡无解
     for lv in levels:
         assert lv.broken_code != lv.correct_code

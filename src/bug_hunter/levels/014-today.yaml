@@ -1,0 +1,28 @@
+id: 014-today
+title: 今天几号
+difficulty: 4
+tags:
+  - sideeffect
+  - 副作用
+  - 隐式输入
+intro: distance_from_2020 计算某个日期距离 2020-01-01 的天数，它应该接受日期参数：distance_from_2020(today)。一个自己决定「今天是几号」的函数，是没法写测试的。
+broken_code: |
+  from datetime import date
+
+  def distance_from_2020():
+      today = date.today()    # "今天"由它自己决定
+      return (today - date(2020, 1, 1)).days
+correct_code: |
+  from datetime import date
+
+  def distance_from_2020(today):
+      return (today - date(2020, 1, 1)).days
+hints:
+  - 这个函数每次运行结果一样吗
+  - 能不能把"今天"变成参数
+reference_test: |
+  from datetime import date
+  from target import distance_from_2020
+
+  def test_known_date():
+      assert distance_from_2020(date(2021, 1, 1)) == 366

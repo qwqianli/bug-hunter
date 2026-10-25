@@ -2,6 +2,7 @@ id: 001-off-by-one
 title: 差一
 difficulty: 1
 tags:
+  - boundary
   - 边界值
 intro: find_max 应该返回列表里最大的数。它大多数时候是对的。
 broken_code: |

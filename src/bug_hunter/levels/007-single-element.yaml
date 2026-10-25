@@ -1,0 +1,24 @@
+id: 007-single-element
+title: 只有一个
+difficulty: 2
+tags:
+  - boundary
+  - 边界值
+  - 单元素
+intro: split_half 把列表拆成（前一半, 后一半）。长度是奇数时，前一半应该多拿一个元素。
+broken_code: |
+  def split_half(items):
+      mid = len(items) // 2    # 对半切，奇数长度切在哪
+      return items[:mid], items[mid:]
+correct_code: |
+  def split_half(items):
+      mid = (len(items) + 1) // 2
+      return items[:mid], items[mid:]
+hints:
+  - 长度为 1 时，切点落在哪里
+  - 测一个只有一个元素的列表
+reference_test: |
+  from target import split_half
+
+  def test_single_element_goes_to_first_half():
+      assert split_half([1]) == ([1], [])
