@@ -1,0 +1,97 @@
+/* 在线版样式：无任何外部资源 */
+
+body {
+  font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 16px;
+  color: #222;
+  background: #fafafa;
+}
+
+header h1 { margin-bottom: 0; }
+header .sub { font-size: 0.6em; color: #888; font-weight: normal; }
+header p { margin-top: 4px; color: #666; }
+
+.status {
+  padding: 24px;
+  text-align: center;
+  background: #eef4fb;
+  border: 1px solid #b6cfe3;
+  border-radius: 4px;
+}
+
+.error {
+  padding: 16px;
+  background: #fdeeee;
+  color: #8a1f1f;
+  border: 1px solid #f2b8b5;
+  border-radius: 4px;
+}
+
+.progress { font-size: 1.05em; }
+
+.level-list { list-style: none; padding-left: 0; }
+.level-list li { padding: 4px 0; }
+.level-list a { text-decoration: none; color: #1a5fb4; }
+.level-list a:hover { text-decoration: underline; }
+
+.done { color: #2e7d32; font-weight: bold; }
+.answered { color: #999; }
+
+.code, textarea {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.code {
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 12px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+
+textarea {
+  width: 100%;
+  min-height: 160px;
+  box-sizing: border-box;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.actions { margin: 12px 0; }
+button {
+  font-size: 15px;
+  padding: 6px 16px;
+  margin-right: 8px;
+  border: 1px solid #1a5fb4;
+  background: #fff;
+  color: #1a5fb4;
+  border-radius: 4px;
+  cursor: pointer;
+}
+button:hover { background: #eef4fb; }
+
+.result, .hintbox, .answerbox {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 4px;
+  white-space: pre-wrap;
+}
+.result { background: #eee; }
+.result.ok { background: #e3f2e3; color: #1b5e20; border: 1px solid #a5d6a7; }
+.result.fail { background: #fdeeee; color: #8a1f1f; border: 1px solid #f2b8b5; }
+.hintbox { background: #fff8e1; border: 1px solid #ffe082; }
+.answerbox { background: #f3f0ff; border: 1px solid #cfc6ff; }
+
+footer {
+  margin-top: 32px;
+  padding-top: 12px;
+  border-top: 1px solid #ddd;
+  color: #888;
+  font-size: 13px;
+}

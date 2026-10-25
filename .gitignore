@@ -22,3 +22,9 @@ _playground/
 
 # 开发过程文档，不随仓库发布
 docs/dev/
+
+# build_web.py 的生成产物（部署时由 CI 重新生成）
+web/levels.json
+web/judge_core.py
+web/judge_cases.json
+web/build-info.json

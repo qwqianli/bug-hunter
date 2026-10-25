@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>Bug 猎人</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header>
+  <h1>Bug 猎人</h1>
+  <p>不能改代码，只能写测试让它现形</p>
+</header>
+<main>
+  <p class="progress">共 {{ total }} 关 · 已完成 {{ done }} / {{ total }}</p>
+  {% for group in groups %}
+  <section>
+    <h2>{{ group.category }} {{ group.name }}</h2>
+    <ul class="level-list">
+      {% for lv in group.levels %}
+      <li>
+        <a href="{{ url_for('level_page', level_id=lv.id) }}">
+          <span class="difficulty">[{{ lv.difficulty }}]</span> {{ lv.id }}　{{ lv.title }}
+        </a>
+        {% if lv.state == "done" %}<span class="done">✓</span>
+        {% elif lv.state == "answered" %}<span class="answered">（看过答案）</span>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endfor %}
+</main>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>{{ level.title }} · Bug 猎人</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header><a href="{{ url_for('index') }}">← 全部关卡</a></header>
+<main>
+  <h1>{{ level.title }} · 难度 {{ level.difficulty }}</h1>
+  <p class="intro">{{ level.intro }}</p>
+
+  <h2>有 bug 的代码（target.py）</h2>
+  <pre class="code">{{ level.broken_code }}</pre>
+
+  <h2>你的测试（写一个 test_ 开头的函数）</h2>
+  <textarea id="code" spellcheck="false"
+    placeholder="from target import ...
+
+def test_...():
+    assert ..."></textarea>
+
+  <div class="actions">
+    <button id="submit">提交判题</button>
+    <button id="hint">要一条提示</button>
+    <button id="answer">看参考答案</button>
+  </div>
+
+  <div id="result" class="result" hidden></div>
+  <div id="hintbox" class="hintbox" hidden></div>
+  <div id="answerbox" class="answerbox" hidden></div>
+</main>
+
+<script>
+const LEVEL_ID = {{ level.id | tojson }};
+const codeBox = document.getElementById("code");
+const resultBox = document.getElementById("result");
+const hintBox = document.getElementById("hintbox");
+const answerBox = document.getElementById("answerbox");
+
+async function post(path, body) {
+  const resp = await fetch(path, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(body),
+  });
+  return {ok: resp.ok, data: await resp.json()};
+}
+
+async function submit() {
+  resultBox.hidden = false;
+  resultBox.className = "result";
+  resultBox.textContent = "判题中……";
+  const {data} = await post("/api/submit", {level_id: LEVEL_ID, code: codeBox.value});
+  if (data.error) {
+    resultBox.textContent = data.error;
+    return;
+  }
+  resultBox.className = "result " + (data.passed ? "ok" : "fail");
+  // detail 只在没过关时给前几行，帮定位但不刷屏
+  const detail = data.passed ? "" : "\n" + (data.detail || "").trim().split("\n").slice(0, 5).join("\n");
+  resultBox.textContent = data.message + detail;
+}
+
+async function hint() {
+  hintBox.hidden = false;
+  const {data} = await post("/api/hint", {level_id: LEVEL_ID});
+  if (data.error) { hintBox.textContent = data.error; return; }
+  if (data.exhausted) {
+    hintBox.textContent = `这关的 ${data.total} 条提示都给完了。还是卡着的话可以看参考答案——看过答案这关就不算自己解出来的了。`;
+  } else {
+    hintBox.textContent = `提示 ${data.index} / ${data.total}：${data.hint}`;
+  }
+}
+
+async function answer() {
+  answerBox.hidden = false;
+  const {data} = await post("/api/answer", {level_id: LEVEL_ID});
+  if (data.error) { answerBox.textContent = data.error; return; }
+  answerBox.innerHTML =
+    "<p>参考答案（看过这关就不计入完成数）：</p>" +
+    "<pre class='code'></pre>";
+  answerBox.querySelector("pre").textContent = data.reference_test;
+}
+
+document.getElementById("submit").addEventListener("click", submit);
+document.getElementById("hint").addEventListener("click", hint);
+document.getElementById("answer").addEventListener("click", answer);
+</script>
+</body>
+</html>

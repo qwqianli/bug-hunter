@@ -221,3 +221,27 @@ def test_missing_pytest_environment_is_internal(monkeypatch, tmp_path):
     result = judge(BROKEN_FIND_MAX, CORRECT_FIND_MAX, test_file)
     assert result.status is JudgeStatus.INTERNAL
     assert "pytest" in result.message
+
+
+# ---- P6 追加：CLI / 浏览器一致性用例 ----------------------------------------
+# 同一份 fixture（tests/fixtures/judge_cases.json）也被在线版的 ?selftest=1
+# 用浏览器判题器跑一遍：两边对同一输入必须得出同一个最终状态。
+# import 放在追加段顶部，不触碰文件上方任何已有内容
+import json
+
+import pytest
+
+from bug_hunter.level import get_level
+
+_CASES = json.loads(
+    (Path(__file__).parent / "fixtures" / "judge_cases.json").read_text(encoding="utf-8")
+)
+
+
+@pytest.mark.parametrize("case", _CASES, ids=lambda case: case["name"])
+def test_browser_consistency_cases_on_cli(case, tmp_path):
+    level = get_level("001-off-by-one")
+    test_file = tmp_path / "test_case.py"
+    test_file.write_text(case["test_code"], encoding="utf-8")
+    result = judge(level.broken_code, level.correct_code, test_file)
+    assert result.status.name == case["expect_final"], f"{case['name']} 判成了 {result.status.name}"

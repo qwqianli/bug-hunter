@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bug 猎人 · 在线版</title>
+  <!-- Pyodide 版本锁死：写 latest 会在上游升级时悄悄改变行为 -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.28.0/full/pyodide.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Bug 猎人 <span class="sub">在线版</span></h1>
+  <p>不能改代码，只能写测试让它现形</p>
+</header>
+<main>
+  <div id="status" class="status">正在加载判题环境（约 10–15 秒）……</div>
+  <div id="error" class="error" hidden></div>
+
+  <div id="home" hidden>
+    <p class="progress" id="progress"></p>
+    <div id="groups"></div>
+  </div>
+
+  <div id="level" hidden>
+    <a href="#" id="back">← 全部关卡</a>
+    <h1 id="lv-title"></h1>
+    <p class="intro" id="lv-intro"></p>
+    <h2>有 bug 的代码（target.py）</h2>
+    <pre class="code" id="lv-code"></pre>
+    <h2>你的测试（写一个 test_ 开头的函数）</h2>
+    <textarea id="code" spellcheck="false"
+      placeholder="from target import ...
+
+def test_...():
+    assert ..."></textarea>
+    <div class="actions">
+      <button id="submit">提交判题</button>
+      <button id="hint">要一条提示</button>
+      <button id="answer">看参考答案</button>
+    </div>
+    <div id="result" class="result" hidden></div>
+    <div id="hintbox" class="hintbox" hidden></div>
+    <div id="answerbox" class="answerbox" hidden></div>
+  </div>
+
+  <div id="selftest" hidden>
+    <h2>自检：浏览器判题器与 CLI 的一致性</h2>
+    <pre id="selftest-out" class="code"></pre>
+  </div>
+</main>
+<footer>
+  <p id="buildinfo"></p>
+  <p>在线版没有超时保护，写死循环需要刷新页面。</p>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

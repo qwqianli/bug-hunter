@@ -37,6 +37,7 @@ _TEXT_HINTS_EXHAUSTED = (
 _TEXT_ANSWER_MARKED = "（已标记为「看过答案」，这关不计入完成数）"
 _TEXT_PASSED_AFTER_ANSWER = "（这关你看过答案，所以不计入完成数，但可以继续下一关）"
 _TEXT_ANSWER_HEAD = "这是能过关的测试。看完之后，试着不看它自己再写一遍。"
+_TEXT_WEB_NEED_FLASK = "需要先安装 Web 依赖：pip install bug-hunter[web]"
 
 _WIDE_LINE = "─" * 37
 
@@ -84,6 +85,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_submit(args.level_id, args.test_file)
     if args.command == "hint":
         return cmd_hint(args.level_id)
+    if args.command == "web":
+        return cmd_web(args.port, args.no_browser)
     return cmd_answer(args.level_id)
 
 
@@ -104,6 +107,9 @@ def _build_parser() -> argparse.ArgumentParser:
     hint.add_argument("level_id")
     answer = sub.add_parser("answer", help="看这一关的参考测试")
     answer.add_argument("level_id")
+    web = sub.add_parser("web", help="在浏览器里玩（启动本地服务）")
+    web.add_argument("--port", type=int, default=8765)
+    web.add_argument("--no-browser", action="store_true", help="不自动打开浏览器")
     return parser
 
 
@@ -244,6 +250,17 @@ def cmd_answer(level_id: str) -> int:
     print()
     print(_TEXT_ANSWER_MARKED)
     return 0
+
+
+def cmd_web(port: int, no_browser: bool) -> int:
+    """启动本地 Web 服务。Flask 是可选依赖，在这里延迟导入：
+    没装时给出一句能照做的安装提示，而不是抛一屏 traceback。"""
+    try:
+        from bug_hunter.web.app import run_web
+    except ImportError:
+        print(_TEXT_WEB_NEED_FLASK)
+        return 1
+    return run_web(port=port, open_browser=not no_browser)
 
 
 def _render_result(result: JudgeResult, level: Level) -> str:

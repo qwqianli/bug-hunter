@@ -12,6 +12,7 @@ dependencies = ["pyyaml>=6.0", "pytest>=8.0"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
+web = ["flask>=3.0"]
 
 [project.scripts]
 bug-hunter = "bug_hunter.cli:main"
@@ -20,7 +21,7 @@ bug-hunter = "bug_hunter.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-bug_hunter = ["levels/*.yaml"]
+bug_hunter = ["levels/*.yaml", "web/templates/*.html", "web/static/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

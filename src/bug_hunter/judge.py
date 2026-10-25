@@ -2,9 +2,11 @@
 
 双条件 = broken 版本上必须至少挂一个用例，correct 版本上必须全部通过。
 只满足前一条是误报，只满足后一条是空转——都不算过关。
+
+「怎么解释结果」在 judge_core.decide()（CLI 和 Web 共用的唯一判定逻辑），
+这个文件只负责「怎么跑测试」：临时目录 + pytest 子进程。
 """
 
-import enum
 import importlib.util
 import shutil
 import subprocess
@@ -13,15 +15,11 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
+from bug_hunter.judge_core import JudgeStatus, RoundOutcome, decide
 
-class JudgeStatus(enum.Enum):
-    PASS = "pass"                      # 过关
-    NO_FAILURE = "no_failure"          # broken 版本上测试全过了 → 没抓到问题
-    FALSE_POSITIVE = "false_positive"  # correct 版本上测试也失败 → 误报
-    NO_TESTS = "no_tests"              # 没有收集到任何测试用例
-    TEST_SYNTAX = "test_syntax"        # 玩家的测试代码本身有语法或 import 错误
-    TIMEOUT = "timeout"                # 执行超时
-    INTERNAL = "internal"              # 运行器内部异常（返回码 3/4 等）
+# JudgeStatus 的定义已移到 judge_core（浏览器版也要用它），在这里重新导出：
+# 既有代码 `from bug_hunter.judge import JudgeStatus` 不受影响
+__all__ = ["JudgeResult", "JudgeStatus", "RoundOutcome", "judge"]
 
 
 @dataclass
@@ -70,20 +68,20 @@ def judge(
         # 判题器自己的文件操作出了问题（比如测试文件不存在），不是玩家的错
         return _internal(f"{type(exc).__name__}: {exc}", -1, -1)
 
-    if rc1 == -1:
-        return _timeout(timeout, rc1, -1)
-    if rc1 != 1:
-        return _first_round_result(rc1, detail1, timeout)
+    outcome1 = _outcome_from_rc(rc1)
+    if outcome1 is not RoundOutcome.HAS_FAILURE:
+        # 第一轮没挂用例（或超时/出错）：没有进第二轮的意义，直接定性
+        passed, status = decide(outcome1)
+        return JudgeResult(passed, status, _message_for(status, timeout), detail1, rc1, -1)
 
-    # 走到这里说明 rc1 == 1：broken 上确实挂了用例，才值得去 correct 上排除误报
+    # 走到这里说明第一轮有失败：去 correct 上排除误报
     try:
         rc2, detail2 = _run_once(test_path, correct_code, timeout)
     except OSError as exc:
         return _internal(f"{type(exc).__name__}: {exc}", rc1, -1)
 
-    if rc2 == -1:
-        return _timeout(timeout, rc1, rc2)
-    return _second_round_result(rc1, rc2, detail2, timeout)
+    passed, status = decide(outcome1, _outcome_from_rc(rc2))
+    return JudgeResult(passed, status, _message_for(status, timeout), detail2, rc1, rc2)
 
 
 def _run_once(test_path: Path, target_code: str, timeout: float) -> tuple[int, str]:
@@ -122,35 +120,24 @@ def _run_once(test_path: Path, target_code: str, timeout: float) -> tuple[int, s
         return finished.returncode, output[-800:]
 
 
-def _first_round_result(rc1: int, detail: str, timeout: float) -> JudgeResult:
-    """第一轮状态表。rc == 1 不在这里——那是进入第二轮的唯一入口。"""
-    if rc1 == 0:
-        status = JudgeStatus.NO_FAILURE
-    elif rc1 == 5:
-        # rc == 5 是「没收集到测试」。不单独处理，空文件会被当成「抓到了」
-        status = JudgeStatus.NO_TESTS
-    elif rc1 == 2:
-        status = JudgeStatus.TEST_SYNTAX
-    else:
-        # 返回码 3/4 是 pytest 内部错误；其他未知返回码也归到这里：
-        # 宁可报内部错误，也不能把异常情况误判成过关
-        status = JudgeStatus.INTERNAL
-    return JudgeResult(False, status, _message_for(status, timeout), detail, rc1, -1)
+def _outcome_from_rc(rc: int) -> RoundOutcome:
+    """pytest 返回码 → 一轮的原始结果。
 
-
-def _second_round_result(rc1: int, rc2: int, detail: str, timeout: float) -> JudgeResult:
-    """第二轮状态表：broken 上已经失败，此刻只看 correct 上的表现。"""
-    if rc2 == 0:
-        status, passed = JudgeStatus.PASS, True
-    elif rc2 == 1:
-        status, passed = JudgeStatus.FALSE_POSITIVE, False
-    elif rc2 == 5:
-        status, passed = JudgeStatus.NO_TESTS, False
-    elif rc2 == 2:
-        status, passed = JudgeStatus.TEST_SYNTAX, False
-    else:
-        status, passed = JudgeStatus.INTERNAL, False
-    return JudgeResult(passed, status, _message_for(status, timeout), detail, rc1, rc2)
+    返回码语义是实测过的，不许猜：
+    0 全过 / 1 有失败 / 2 收集错误 / 5 没收集到测试；
+    -1 是 _run_once 的超时哨兵；3/4 等罕见码统一按运行器错误兜底。
+    """
+    if rc == 0:
+        return RoundOutcome.ALL_PASS
+    if rc == 1:
+        return RoundOutcome.HAS_FAILURE
+    if rc == 2:
+        return RoundOutcome.SYNTAX_ERROR
+    if rc == 5:
+        return RoundOutcome.NO_TESTS
+    if rc == -1:
+        return RoundOutcome.TIMEOUT
+    return RoundOutcome.ERROR
 
 
 def _message_for(status: JudgeStatus, timeout: float) -> str:
@@ -158,12 +145,6 @@ def _message_for(status: JudgeStatus, timeout: float) -> str:
     if status is JudgeStatus.TIMEOUT:
         return f"测试跑了超过 {timeout} 秒还没结束，可能有死循环。"
     return _MESSAGES[status]
-
-
-def _timeout(timeout: float, rc1: int, rc2: int) -> JudgeResult:
-    return JudgeResult(
-        False, JudgeStatus.TIMEOUT, _message_for(JudgeStatus.TIMEOUT, timeout), "", rc1, rc2
-    )
 
 
 def _internal(detail: str, rc1: int, rc2: int) -> JudgeResult:
