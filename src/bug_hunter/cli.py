@@ -9,6 +9,7 @@ import os
 import sys
 from pathlib import Path
 
+from bug_hunter import progress
 from bug_hunter.judge import JudgeResult, JudgeStatus, judge
 from bug_hunter.level import LEVELS_DIR, Level, get_level, load_all_levels
 
@@ -22,20 +23,40 @@ _TEXT_PLAYGROUND_RESET = "已重置 _playground/target.py"
 _TEXT_PLAYGROUND_READY = "我在 _playground/target.py 里放好了代码。"
 _TEXT_PLAYGROUND_TASK = "你的任务：在 _playground/ 里写一个 test_*.py，让它抓到这个 bug。"
 _TEXT_PASS_EXTRA = "这正是测试该有的样子：只针对出错的那条路径。"
-_TEXT_ALL_DONE = "三关都过了，全部通关！"
+_TEXT_ALL_DONE = "全部关卡都过了，通关！"
 _TEXT_NO_FAILURE_EXTRA = "想一想：这个函数在什么输入下会出错？换个数据再试试。"
 _TEXT_FALSE_POSITIVE_EXTRA = "判题要求是：有 bug 时必须失败，没 bug 时必须通过。两个条件都要满足。"
 _TEXT_NO_HINTS = "这一关没有写提示。"
-_TEXT_HINT_FOOTER = "（P3 会支持多条提示逐条给出）"
+_TEXT_HINT_HEADER = "提示 {index} / {total}"
+_TEXT_HINT_MORE = "还想再要一条就再运行一次：\n  bug-hunter hint {level_id}"
+_TEXT_HINTS_EXHAUSTED = (
+    "这关的 {total} 条提示都给你了。\n\n"
+    "如果还是卡着，可以看答案（bug-hunter answer {level_id}）——\n"
+    "但记住，看过答案这关就不算自己解出来的了。"
+)
+_TEXT_ANSWER_MARKED = "（已标记为「看过答案」，这关不计入完成数）"
+_TEXT_PASSED_AFTER_ANSWER = "（这关你看过答案，所以不计入完成数，但可以继续下一关）"
 _TEXT_ANSWER_HEAD = "这是能过关的测试。看完之后，试着不看它自己再写一遍。"
 
 _WIDE_LINE = "─" * 37
+
+# list 的分组顺序和分类中文名：一张表管住，别在函数体里散落 if-else
+_CATEGORY_ORDER = ("boundary", "exception", "isolation", "numeric", "contract", "sideeffect")
+_CATEGORY_NAMES = {
+    "boundary": "边界值",
+    "exception": "异常流",
+    "isolation": "测试隔离",
+    "numeric": "数值精度",
+    "contract": "类型与契约",
+    "sideeffect": "副作用",
+}
 
 # ---- 颜色 ---------------------------------------------------------------
 
 _GREEN = "\033[32m"
 _YELLOW = "\033[33m"
 _RED = "\033[31m"
+_GRAY = "\033[90m"
 _RESET = "\033[0m"
 
 
@@ -91,12 +112,36 @@ def cmd_list() -> int:
     if not levels:
         print(_TEXT_NO_LEVELS)
         return 0
-    print(f"共 {len(levels)} 关")
-    print()
-    for index, level in enumerate(levels, start=1):
-        # 中文占的宽度不固定，不做对齐，用 [序号] id  标题 的自然分隔
-        print(f"[{index}] {level.id}  {level.title}")
+    progress_data = progress.load()
+    known_ids = {lv.id for lv in levels}
+    # 存档里可能留着已下架关卡的 id，统计完成数时忽略它们
+    done = len([i for i in progress_data["completed"] if i in known_ids])
+    print(f"共 {len(levels)} 关 · 已完成 {done} / {len(levels)}")
+    for category in _CATEGORY_ORDER:
+        group = [lv for lv in levels if lv.tags and lv.tags[0] == category]
+        if not group:
+            continue
+        print()
+        print(f"{category} {_CATEGORY_NAMES[category]}")
+        for lv in group:
+            print(_render_level_row(lv, progress_data))
     return 0
+
+
+def _render_level_row(lv: Level, progress_data: dict) -> str:
+    """一行一关：难度、id、标题、完成标记。
+
+    「看过答案」优先于「完成」显示：这个状态最该被玩家看见，
+    她才会记得这关不算自己解出来的。
+    """
+    if lv.id in progress_data["viewed_answer"]:
+        mark = _paint("（看过答案）", _GRAY)
+    elif lv.id in progress_data["completed"]:
+        mark = _paint("✓", _GREEN)
+    else:
+        mark = ""
+    # 中文显示宽度不固定，✓ 那一列会有一点歪，接受它
+    return f"  [{lv.difficulty}] {lv.id:<24}{lv.title:<6}{mark}"
 
 
 def cmd_play(level_id: str) -> int:
@@ -149,7 +194,13 @@ def cmd_submit(level_id: str, test_file: str) -> int:
         print(_TEXT_NEED_PY_SUFFIX)
         return 1
     result = judge(level.broken_code, level.correct_code, path)
+    viewed_before = level_id in progress.load()["viewed_answer"]
+    if result.passed:
+        progress.record_pass(level_id)
     print(_render_result(result, level))
+    if result.passed and viewed_before:
+        print()
+        print(_TEXT_PASSED_AFTER_ANSWER)
     return 0 if result.passed else 1
 
 
@@ -158,14 +209,21 @@ def cmd_hint(level_id: str) -> int:
     if level is None:
         print(_TEXT_LEVEL_NOT_FOUND.format(level_id=level_id))
         return 1
-    print("提示")
-    print()
     if not level.hints:
         print(_TEXT_NO_HINTS)
         return 0
-    print(level.hints[0])  # P3: 改成按进度逐条给出
+    total = len(level.hints)  # 不写死 2：关卡可能有 1 条或 3 条提示
+    seen = progress.clamp_hint_index(level_id, total)
+    if seen >= total:
+        print(_TEXT_HINTS_EXHAUSTED.format(total=total, level_id=level_id))
+        return 0
+    index = seen + 1
+    progress.record_hint(level_id, index)
+    print(_TEXT_HINT_HEADER.format(index=index, total=total))
     print()
-    print(_TEXT_HINT_FOOTER)
+    print(level.hints[index - 1])
+    print()
+    print(_TEXT_HINT_MORE.format(level_id=level_id))
     return 0
 
 
@@ -180,8 +238,11 @@ def cmd_answer(level_id: str) -> int:
     print()
     print(_WIDE_LINE)
     # YAML 块标量末尾自带换行，去掉再包上下边框，视觉才对称
+    progress.record_answer(level_id)  # 先记再看：玩家看完关掉终端，这次「看过」也不丢
     print(level.reference_test.rstrip("\n"))
     print(_WIDE_LINE)
+    print()
+    print(_TEXT_ANSWER_MARKED)
     return 0
 
 
