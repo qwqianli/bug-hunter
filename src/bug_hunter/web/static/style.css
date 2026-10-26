@@ -208,6 +208,8 @@ main section > h2::before { content: none; }
 .diff-1 { color: var(--green);  border-color: rgba(61, 220, 151, .4);  background: rgba(61, 220, 151, .10); }
 .diff-2 { color: var(--yellow); border-color: rgba(255, 209, 102, .4); background: rgba(255, 209, 102, .10); }
 .diff-3 { color: var(--red);    border-color: rgba(255, 107, 107, .4); background: rgba(255, 107, 107, .10); }
+.diff-4 { color: #ffb4a2; border-color: rgba(255, 143, 107, .55); background: rgba(255, 143, 107, .14); }
+.diff-5 { color: #d8b4fe; border-color: rgba(192, 132, 252, .55); background: rgba(192, 132, 252, .14); }
 
 .state { font-size: 12px; color: var(--text-faint); }
 .level-list li.done .state { color: var(--green); }

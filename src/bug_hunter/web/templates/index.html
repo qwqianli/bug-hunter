@@ -14,6 +14,7 @@
 </header>
 <main>
   <p class="progress">共 {{ total }} 关 · 已完成 {{ done }} / {{ total }}</p>
+  <div class="progress-bar"><span style="width: {{ (done * 100 / total) | round(1) if total else 0 }}%"></span></div>
   {% for group in groups %}
   <section>
     <h2>{{ group.category }} {{ group.name }}</h2>
