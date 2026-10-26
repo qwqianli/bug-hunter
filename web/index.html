@@ -6,6 +6,7 @@
   <title>Bug 猎人 · 在线版</title>
   <!-- Pyodide 版本锁死：写 latest 会在上游升级时悄悄改变行为 -->
   <script src="https://cdn.jsdelivr.net/pyodide/v0.28.0/full/pyodide.js"></script>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,6 +20,7 @@
 
   <div id="home" hidden>
     <p class="progress" id="progress"></p>
+    <div class="progress-bar"><span id="progress-fill"></span></div>
     <div id="groups"></div>
   </div>
 

@@ -115,6 +115,8 @@ function showHome() {
   document.getElementById("home").hidden = false;
   const done = levels.filter(l => progress.completed.includes(l.id)).length;
   document.getElementById("progress").textContent = `共 ${levels.length} 关 · 已完成 ${done} / ${levels.length}`;
+  const pct = levels.length ? Math.round(done / levels.length * 100) : 0;
+  document.getElementById("progress-fill").style.width = pct + "%";
   const groups = document.getElementById("groups");
   groups.textContent = "";
   for (const category of CATEGORY_ORDER) {
@@ -127,23 +129,44 @@ function showHome() {
     const ul = document.createElement("ul");
     ul.className = "level-list";
     for (const lv of members) {
+      const state = progress.viewed_answer.includes(lv.id)
+        ? "answered"
+        : (progress.completed.includes(lv.id) ? "done" : "");
+
       const li = document.createElement("li");
+      if (state) li.className = state;
+
       const a = document.createElement("a");
       a.href = "#" + lv.id;
-      a.textContent = `[${lv.difficulty}] ${lv.id}　${lv.title}`;
+
+      const idEl = document.createElement("span");
+      idEl.className = "lv-id";
+      idEl.textContent = lv.id;
+
+      const titleEl = document.createElement("span");
+      titleEl.className = "lv-title";
+      titleEl.textContent = lv.title;
+
+      const meta = document.createElement("span");
+      meta.className = "lv-meta";
+
+      const badge = document.createElement("span");
+      badge.className = "badge diff-" + lv.difficulty;
+      badge.textContent = "难度 " + lv.difficulty;
+      meta.appendChild(badge);
+
+      const stateEl = document.createElement("span");
+      stateEl.className = "state";
+      stateEl.textContent =
+        state === "answered" ? "看过答案" : (state === "done" ? "✓ 已通关" : "未通关");
+      meta.appendChild(stateEl);
+
+      a.appendChild(idEl);
+      a.appendChild(titleEl);
+      a.appendChild(meta);
       a.addEventListener("click", () => showLevel(lv));
+
       li.appendChild(a);
-      if (progress.viewed_answer.includes(lv.id)) {
-        const mark = document.createElement("span");
-        mark.className = "answered";
-        mark.textContent = "（看过答案）";
-        li.appendChild(mark);
-      } else if (progress.completed.includes(lv.id)) {
-        const mark = document.createElement("span");
-        mark.className = "done";
-        mark.textContent = "✓";
-        li.appendChild(mark);
-      }
       ul.appendChild(li);
     }
     section.appendChild(ul);

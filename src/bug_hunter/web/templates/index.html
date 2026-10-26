@@ -2,12 +2,14 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
   <title>Bug 猎人</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 <header>
-  <h1>Bug 猎人</h1>
+  <h1>Bug 猎人 <span class="tag">本地版</span></h1>
   <p>不能改代码，只能写测试让它现形</p>
 </header>
 <main>
@@ -17,12 +19,15 @@
     <h2>{{ group.category }} {{ group.name }}</h2>
     <ul class="level-list">
       {% for lv in group.levels %}
-      <li>
+      <li class="{% if lv.state == 'done' %}done{% elif lv.state == 'answered' %}answered{% endif %}">
         <a href="{{ url_for('level_page', level_id=lv.id) }}">
-          <span class="difficulty">[{{ lv.difficulty }}]</span> {{ lv.id }}　{{ lv.title }}
+          <span class="lv-id">{{ lv.id }}</span>
+          <span class="lv-title">{{ lv.title }}</span>
+          <span class="lv-meta">
+            <span class="badge diff-{{ lv.difficulty }}">难度 {{ lv.difficulty }}</span>
+            <span class="state">{% if lv.state == "done" %}✓ 已通关{% elif lv.state == "answered" %}看过答案{% else %}未通关{% endif %}</span>
+          </span>
         </a>
-        {% if lv.state == "done" %}<span class="done">✓</span>
-        {% elif lv.state == "answered" %}<span class="answered">（看过答案）</span>{% endif %}
       </li>
       {% endfor %}
     </ul>
