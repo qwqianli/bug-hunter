@@ -1,0 +1,29 @@
+id: 021-no-seed
+title: 洗牌
+difficulty: 3
+tags:
+  - sideeffect
+  - 副作用
+  - 随机数
+intro: lucky_number 返回 0 到 999999 之间的幸运号。同一个随机种子之下，它给出的号应该一样。
+broken_code: |
+  import random
+
+  def lucky_number():
+      random.seed()    # 每次都重新洗牌
+      return random.randrange(1000000)
+correct_code: |
+  import random
+
+  def lucky_number():
+      return random.randrange(1000000)
+hints:
+  - 想让随机数可断言，调用前得先做什么
+  - 仔细看函数体内，是谁在偷偷重新洗牌
+reference_test: |
+  import random
+  from target import lucky_number
+
+  def test_number_follows_the_seed():
+      random.seed(42)
+      assert lucky_number() == 670487

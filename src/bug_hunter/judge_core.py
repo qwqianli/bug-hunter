@@ -36,7 +36,7 @@ def decide(first: RoundOutcome, second: RoundOutcome | None = None) -> tuple[boo
     """纯函数：给定两轮的原始结果，返回 (是否过关, 最终状态)。
 
     这是 CLI 和 Web 共用的唯一判定逻辑，不允许有 IO、不允许 import 执行层。
-    判定表与 docs/ 里各阶段任务定义一致，任何改动都要两边同步验证。
+    判定表与 docs/关卡设计规范.md 一致，任何改动都要两边同步验证。
     """
     # 第一轮不是「有失败」就没有进第二轮的意义：直接按第一轮定性
     if first is RoundOutcome.TIMEOUT:

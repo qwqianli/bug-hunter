@@ -20,11 +20,18 @@ _playground/
 .vscode/
 .idea/
 
-# 开发过程文档，不随仓库发布
+# 本地临时目录，不随仓库发布
 docs/dev/
+internal/
 
 # build_web.py 的生成产物（部署时由 CI 重新生成）
 web/levels.json
 web/judge_core.py
 web/judge_cases.json
 web/build-info.json
+
+# 环境与日志
+.env
+.env.*
+!.env.example
+*.log

@@ -1,4 +1,4 @@
-"""judge() 的验收测试：任务书表格里的 9 个场景，外加 1 条内部错误路径。
+"""judge() 测试：9 个边界场景，外加 1 条内部错误路径。
 
 每个场景都断言 status、passed 和两轮的 pytest 返回码，
 这样判题器状态机一旦走错分支，测试能精确指出是哪一格错了。
@@ -145,7 +145,7 @@ def test_missing_test_file_is_internal(tmp_path):
     assert "FileNotFoundError" in result.detail
 
 
-# ---- P5 追加：三条错误分支。只追加，上面 10 条原样不动 -----------------------
+# ---- 三条错误分支。只追加，上面 10 条原样不动 -----------------------
 # 这些分支要造出「pytest 自己出错」的现场，真实复现成本高而且不可重复，
 # 所以用假 _run_once 替身：这里测的是状态机映射，不是 pytest 本身
 
@@ -209,7 +209,7 @@ def test_pytest_error_returncodes_map_to_internal(monkeypatch, tmp_path):
         assert result.passed is False
 
 
-# ---- P5.1 追加：宿主环境缺 pytest 的兜底分支 ---------------------------------
+# ---- 宿主环境缺 pytest 的兜底分支 ---------------------------------
 
 
 def test_missing_pytest_environment_is_internal(monkeypatch, tmp_path):
@@ -223,7 +223,7 @@ def test_missing_pytest_environment_is_internal(monkeypatch, tmp_path):
     assert "pytest" in result.message
 
 
-# ---- P6 追加：CLI / 浏览器一致性用例 ----------------------------------------
+# ---- CLI / 浏览器一致性用例 ----------------------------------------
 # 同一份 fixture（tests/fixtures/judge_cases.json）也被在线版的 ?selftest=1
 # 用浏览器判题器跑一遍：两边对同一输入必须得出同一个最终状态。
 # import 放在追加段顶部，不触碰文件上方任何已有内容

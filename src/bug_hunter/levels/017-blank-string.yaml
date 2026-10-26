@@ -1,0 +1,26 @@
+id: 017-blank-string
+title: 全空白
+difficulty: 2
+tags:
+  - exception
+  - 异常流
+  - 真值判断
+intro: set_nickname 保存昵称：非空昵称原样返回，空昵称返回 None。只由空格组成的昵称，也应该算空。
+broken_code: |
+  def set_nickname(name):
+      if name:    # 什么样的字符串才算「空」
+          return name
+      return None
+correct_code: |
+  def set_nickname(name):
+      if name.strip():
+          return name
+      return None
+hints:
+  - 全是空格的字符串，在 if 眼里是真还是假
+  - 亲手试一次 if "   "：
+reference_test: |
+  from target import set_nickname
+
+  def test_blank_string_is_invalid():
+      assert set_nickname("   ") is None

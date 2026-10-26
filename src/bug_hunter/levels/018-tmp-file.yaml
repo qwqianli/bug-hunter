@@ -1,0 +1,45 @@
+id: 018-tmp-file
+title: 残留
+difficulty: 4
+tags:
+  - isolation
+  - 测试隔离
+  - 文件污染
+intro: save_snapshot 保存一份状态快照，read_snapshot 读回快照内容（一个字符串列表）。快照记录的是「此刻」：写下一份时，文件里应该只有这一份。
+broken_code: |
+  from pathlib import Path
+
+  SNAPSHOT_FILE = Path("snapshot.txt")
+
+  def save_snapshot(text):
+      with SNAPSHOT_FILE.open("a", encoding="utf-8") as f:    # 上一次的快照，还留在文件里
+          f.write(text + "\n")
+
+  def read_snapshot():
+      with SNAPSHOT_FILE.open(encoding="utf-8") as f:
+          return f.read().splitlines()
+correct_code: |
+  from pathlib import Path
+
+  SNAPSHOT_FILE = Path("snapshot.txt")
+
+  def save_snapshot(text):
+      with SNAPSHOT_FILE.open("w", encoding="utf-8") as f:
+          f.write(text + "\n")
+
+  def read_snapshot():
+      with SNAPSHOT_FILE.open(encoding="utf-8") as f:
+          return f.read().splitlines()
+hints:
+  - 每个测试单独跑都能过，合在一起就挂——中间共享了什么
+  - 保存第二份快照时，第一份去了哪里
+reference_test: |
+  from target import save_snapshot, read_snapshot
+
+  def test_first_snapshot():
+      save_snapshot("a")
+      assert read_snapshot() == ["a"]
+
+  def test_second_snapshot():
+      save_snapshot("b")
+      assert read_snapshot() == ["b"]

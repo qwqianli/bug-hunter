@@ -1,0 +1,28 @@
+id: 019-float-sum
+title: 凑满
+difficulty: 3
+tags:
+  - numeric
+  - 数值精度
+  - 浮点累加
+intro: fully_paid 判断几笔付款加起来是否正好付清 total。它对整十整百的账总是对的。
+broken_code: |
+  def fully_paid(payments, total):
+      amount = 0.0
+      for p in payments:
+          amount += p    # 一笔一笔加出来的数，正好等于 total 吗
+      return amount == total
+correct_code: |
+  def fully_paid(payments, total):
+      amount = 0.0
+      for p in payments:
+          amount += p
+      return abs(amount - total) < 1e-9
+hints:
+  - 0.1 + 0.2 在计算机里正好等于 0.3 吗
+  - 十笔 0.1 一笔一笔加出来，再和 1.0 比一比
+reference_test: |
+  from target import fully_paid
+
+  def test_ten_dimes_paid_off():
+      assert fully_paid([0.1] * 10, 1.0)

@@ -1,4 +1,4 @@
-"""CLI 的验收测试：直接调 main([...])，不起子进程跑命令行。
+"""CLI 测试：直接调 main([...])，不起子进程跑命令行。
 
 capsys 抓的是 CLI 自己打印的摘要；判题轮次里 pytest 子进程的原始输出
 不会（也不该）出现在这里。
@@ -46,7 +46,7 @@ def run(capsys, argv):
 def test_list_shows_total(capsys):
     code, out = run(capsys, ["list"])
     assert code == 0
-    assert "共 15 关" in out
+    assert "共 21 关" in out
 
 
 def test_list_groups_by_category(capsys):

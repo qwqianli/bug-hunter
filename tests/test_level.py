@@ -1,4 +1,4 @@
-"""关卡加载的验收测试：正常加载 + 任务书列出的每一类格式错误。
+"""关卡加载测试：正常加载 + 每一类格式错误。
 
 格式错误的用例都断言「报错信息里带文件名和字段名」——
 定位不到出错的字段，报错就等于没报。
@@ -54,7 +54,7 @@ def test_load_minimal_level(tmp_path):
 def test_builtin_levels_all_load():
     levels = load_all_levels(LEVELS_DIR)
     ids = [lv.id for lv in levels]
-    # P3 扩到 15 关后这里不再钉死完整清单：只要求老三关还在，
+    # 扩到 15 关后这里不再钉死完整清单：只要求老三关还在，
     # 顺序永远符合 (difficulty, id) 升序
     for old_id in ("001-off-by-one", "002-empty-input", "003-stateful"):
         assert old_id in ids

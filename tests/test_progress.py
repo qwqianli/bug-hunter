@@ -1,4 +1,4 @@
-"""progress 存档的验收测试。
+"""progress 存档测试。
 
 全部用 monkeypatch 把 PROGRESS_PATH 指到 tmp_path——
 测试绝不允许碰真实的 ~/.bug-hunter/。

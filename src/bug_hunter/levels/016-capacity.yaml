@@ -1,0 +1,30 @@
+id: 016-capacity
+title: 容量
+difficulty: 2
+tags:
+  - boundary
+  - 边界值
+  - 容量上限
+intro: push 把元素放进列表末尾，最多存 capacity 条。已经满了时，再来的一条应被拒绝：返回 False，列表保持原样。
+broken_code: |
+  def push(stack, item, capacity):
+      if len(stack) <= capacity:    # 满了还能再放吗：这个比较放过了谁
+          stack.append(item)
+          return True
+      return False
+correct_code: |
+  def push(stack, item, capacity):
+      if len(stack) < capacity:
+          stack.append(item)
+          return True
+      return False
+hints:
+  - 试一个元素数量正好等于容量的列表
+  - 「最多存 N 条」时，第 N+1 条该走哪条路
+reference_test: |
+  from target import push
+
+  def test_full_capacity_rejects():
+      s = [1, 2]
+      assert push(s, 3, 2) is False
+      assert s == [1, 2]

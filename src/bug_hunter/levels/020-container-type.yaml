@@ -1,0 +1,22 @@
+id: 020-container-type
+title: 换容器
+difficulty: 5
+tags:
+  - contract
+  - 类型与契约
+  - 容器类型
+intro: evens 返回列表里的偶数，按原顺序装在列表里。返回值应该一直是列表——一个偶数都没有的时候，也一样。
+broken_code: |
+  def evens(nums):
+      return [n for n in nums if n % 2 == 0] or ()    # 一个偶数都没有时，or 会递出哪个空容器
+correct_code: |
+  def evens(nums):
+      return [n for n in nums if n % 2 == 0]
+hints:
+  - 返回值的类型一直一样吗
+  - 试一个偶数都没有的输入，再看看拿到的东西能做什么
+reference_test: |
+  from target import evens
+
+  def test_no_even_still_returns_list():
+      assert evens([1, 3]) == []
