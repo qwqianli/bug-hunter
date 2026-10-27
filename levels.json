@@ -1,0 +1,377 @@
+[
+  {
+    "id": "001-off-by-one",
+    "title": "差一",
+    "difficulty": 1,
+    "tags": [
+      "boundary",
+      "边界值"
+    ],
+    "intro": "find_max 应该返回列表里最大的数。它大多数时候是对的。",
+    "broken_code": "def find_max(nums):\n    result = nums[0]\n    for i in range(1, len(nums) - 1):     # 少遍历最后一个元素\n        if nums[i] > result:\n            result = nums[i]\n    return result\n",
+    "correct_code": "def find_max(nums):\n    result = nums[0]\n    for i in range(1, len(nums)):\n        if nums[i] > result:\n            result = nums[i]\n    return result\n",
+    "hints": [
+      "试一个最大值在最后一位的列表",
+      "试一个只有两个元素的列表"
+    ],
+    "reference_test": "from target import find_max\n\ndef test_max_at_last_position():\n    assert find_max([1, 3, 5]) == 5\n"
+  },
+  {
+    "id": "006-initial-value",
+    "title": "起点",
+    "difficulty": 1,
+    "tags": [
+      "boundary",
+      "边界值",
+      "初始值"
+    ],
+    "intro": "max_value 应该返回列表里最大的数。如果列表里全是负数，答案还是零吗？",
+    "broken_code": "def max_value(nums):\n    result = 0              # 用 0 做起点：一旦全是负数，答案就错了\n    for n in nums:\n        if n > result:\n            result = n\n    return result\n",
+    "correct_code": "def max_value(nums):\n    result = nums[0]        # 起点必须来自数据本身，不能拍脑袋定\n    for n in nums:\n        if n > result:\n            result = n\n    return result\n",
+    "hints": [
+      "如果列表里全是负数，0 会不会比它们都大",
+      "试试一个全是负数的列表"
+    ],
+    "reference_test": "from target import max_value\n\ndef test_all_negative():\n    assert max_value([-5, -3]) == -3\n"
+  },
+  {
+    "id": "002-empty-input",
+    "title": "空",
+    "difficulty": 2,
+    "tags": [
+      "exception",
+      "异常流",
+      "等价类划分"
+    ],
+    "intro": "average 应该返回列表的平均数。当列表为空时，应该返回 None 而不是崩溃。",
+    "broken_code": "def average(nums):\n    return sum(nums) / len(nums)      # 空列表会 ZeroDivisionError\n",
+    "correct_code": "def average(nums):\n    if not nums:\n        return None\n    return sum(nums) / len(nums)\n",
+    "hints": [
+      "空列表是一种合法的输入吗",
+      "想想 len([]) 是多少"
+    ],
+    "reference_test": "from target import average\n\ndef test_empty_input_returns_none():\n    assert average([]) is None\n"
+  },
+  {
+    "id": "007-single-element",
+    "title": "只有一个",
+    "difficulty": 2,
+    "tags": [
+      "boundary",
+      "边界值",
+      "单元素"
+    ],
+    "intro": "split_half 把列表拆成（前一半, 后一半）。长度是奇数时，前一半应该多拿一个元素。",
+    "broken_code": "def split_half(items):\n    mid = len(items) // 2    # 对半切，奇数长度切在哪\n    return items[:mid], items[mid:]\n",
+    "correct_code": "def split_half(items):\n    mid = (len(items) + 1) // 2\n    return items[:mid], items[mid:]\n",
+    "hints": [
+      "长度为 1 时，切点落在哪里",
+      "测一个只有一个元素的列表"
+    ],
+    "reference_test": "from target import split_half\n\ndef test_single_element_goes_to_first_half():\n    assert split_half([1]) == ([1], [])\n"
+  },
+  {
+    "id": "008-out-of-range",
+    "title": "越界",
+    "difficulty": 2,
+    "tags": [
+      "exception",
+      "异常流",
+      "越界"
+    ],
+    "intro": "nth 返回列表第 n 个元素（从 0 开始数）。n 超出范围时应该返回 None——负数也算超出范围。",
+    "broken_code": "def nth(items, n):\n    return items[n]    # 调用方传来的 n，一定在范围内吗\n",
+    "correct_code": "def nth(items, n):\n    if 0 <= n < len(items):\n        return items[n]\n    return None\n",
+    "hints": [
+      "如果 n 是负数呢",
+      "如果列表比 n 短呢"
+    ],
+    "reference_test": "from target import nth\n\ndef test_out_of_range_returns_none():\n    assert nth([10, 20], 5) is None\n    assert nth([10, 20], -1) is None\n"
+  },
+  {
+    "id": "012-integer-division",
+    "title": "整数除法",
+    "difficulty": 2,
+    "tags": [
+      "numeric",
+      "数值精度",
+      "整数除法"
+    ],
+    "intro": "percent 把得分换算成 0-100 的百分比整数，按四舍五入取整。",
+    "broken_code": "def percent(score, total):\n    return score * 100 // total    # 整除，小数部分去哪了\n",
+    "correct_code": "def percent(score, total):\n    return round(score * 100 / total)\n",
+    "hints": [
+      "整除和四舍五入，什么时候结果不一样",
+      "试试一个除不尽的分数"
+    ],
+    "reference_test": "from target import percent\n\ndef test_rounding_not_truncation():\n    assert percent(2, 3) == 67\n"
+  },
+  {
+    "id": "016-capacity",
+    "title": "容量",
+    "difficulty": 2,
+    "tags": [
+      "boundary",
+      "边界值",
+      "容量上限"
+    ],
+    "intro": "push 把元素放进列表末尾，最多存 capacity 条。已经满了时，再来的一条应被拒绝：返回 False，列表保持原样。",
+    "broken_code": "def push(stack, item, capacity):\n    if len(stack) <= capacity:    # 满了还能再放吗：这个比较放过了谁\n        stack.append(item)\n        return True\n    return False\n",
+    "correct_code": "def push(stack, item, capacity):\n    if len(stack) < capacity:\n        stack.append(item)\n        return True\n    return False\n",
+    "hints": [
+      "试一个元素数量正好等于容量的列表",
+      "「最多存 N 条」时，第 N+1 条该走哪条路"
+    ],
+    "reference_test": "from target import push\n\ndef test_full_capacity_rejects():\n    s = [1, 2]\n    assert push(s, 3, 2) is False\n    assert s == [1, 2]\n"
+  },
+  {
+    "id": "017-blank-string",
+    "title": "全空白",
+    "difficulty": 2,
+    "tags": [
+      "exception",
+      "异常流",
+      "真值判断"
+    ],
+    "intro": "set_nickname 保存昵称：非空昵称原样返回，空昵称返回 None。只由空格组成的昵称，也应该算空。",
+    "broken_code": "def set_nickname(name):\n    if name:    # 什么样的字符串才算「空」\n        return name\n    return None\n",
+    "correct_code": "def set_nickname(name):\n    if name.strip():\n        return name\n    return None\n",
+    "hints": [
+      "全是空格的字符串，在 if 眼里是真还是假",
+      "亲手试一次 if \"   \"："
+    ],
+    "reference_test": "from target import set_nickname\n\ndef test_blank_string_is_invalid():\n    assert set_nickname(\"   \") is None\n"
+  },
+  {
+    "id": "003-stateful",
+    "title": "第二次",
+    "difficulty": 3,
+    "tags": [
+      "isolation",
+      "测试隔离",
+      "可变默认参数"
+    ],
+    "intro": "collect 每次调用应该返回一个只包含本次元素的新列表。",
+    "broken_code": "def collect(item, bucket=[]):        # 可变默认参数：这个 [] 只创建一次\n    bucket.append(item)\n    return bucket\n",
+    "correct_code": "def collect(item, bucket=None):\n    if bucket is None:\n        bucket = []\n    bucket.append(item)\n    return bucket\n",
+    "hints": [
+      "只调用一次是发现不了的",
+      "试试连续调用两次，比较两次的返回值"
+    ],
+    "reference_test": "from target import collect\n\ndef test_two_calls_are_independent():\n    assert collect(1) == [1]\n    assert collect(2) == [2]\n"
+  },
+  {
+    "id": "009-wrong-type",
+    "title": "错误的类型",
+    "difficulty": 3,
+    "tags": [
+      "exception",
+      "等价类划分"
+    ],
+    "intro": "to_int 把字符串转成整数，转不成时返回 -1。首尾带空格的数字（如 \" 12 \"）也算能转的。",
+    "broken_code": "def to_int(text):\n    if text.isdigit():    # 这个判断会把哪些输入挡在外面\n        return int(text)\n    return -1\n",
+    "correct_code": "def to_int(text):\n    if text.strip().isdigit():\n        return int(text.strip())\n    return -1\n",
+    "hints": [
+      "\"12\" 和 \" 12 \" 是同一个等价类吗",
+      "试试前后带空格的输入"
+    ],
+    "reference_test": "from target import to_int\n\ndef test_surrounding_spaces_are_valid():\n    assert to_int(\" 12 \") == 12\n"
+  },
+  {
+    "id": "010-cache",
+    "title": "缓存",
+    "difficulty": 3,
+    "tags": [
+      "isolation",
+      "测试隔离",
+      "模块级缓存"
+    ],
+    "intro": "price_of 查水果单价，结果会被缓存。不管查几次、按什么顺序查，同一个问题的答案应该一致。",
+    "broken_code": "cache = {}\n\ndef price_of(fruit):\n    if cache:    # 查过一次之后，这里就总有东西了\n        return list(cache.values())[0]\n    cache[fruit] = {\"apple\": 3, \"banana\": 5}[fruit]\n    return cache[fruit]\n",
+    "correct_code": "cache = {}\n\ndef price_of(fruit):\n    if fruit in cache:\n        return cache[fruit]\n    cache[fruit] = {\"apple\": 3, \"banana\": 5}[fruit]\n    return cache[fruit]\n",
+    "hints": [
+      "测一次是看不出来的",
+      "用两组不同的参数连续调用两次"
+    ],
+    "reference_test": "from target import price_of\n\ndef test_different_fruits():\n    assert price_of(\"apple\") == 3\n    assert price_of(\"banana\") == 5\n"
+  },
+  {
+    "id": "013-no-value",
+    "title": "没有值",
+    "difficulty": 3,
+    "tags": [
+      "contract",
+      "类型与契约",
+      "None传播"
+    ],
+    "intro": "dig 从两层嵌套的字典里取值。任何一层不存在时，都应该返回 default，而不是崩溃。",
+    "broken_code": "def dig(d, k1, k2, default=None):\n    return d.get(k1).get(k2, default)    # 中间那一层不存在时，这条链会怎样\n",
+    "correct_code": "def dig(d, k1, k2, default=None):\n    first = d.get(k1)\n    if first is None:\n        return default\n    return first.get(k2, default)\n",
+    "hints": [
+      "中间那一层不存在时会返回什么",
+      "None 上面还能调用 .get 吗"
+    ],
+    "reference_test": "from target import dig\n\ndef test_missing_first_layer():\n    assert dig({\"x\": 1}, \"a\", \"b\") is None\n"
+  },
+  {
+    "id": "015-no-order-guarantee",
+    "title": "顺序不保证",
+    "difficulty": 3,
+    "tags": [
+      "sideeffect",
+      "副作用",
+      "顺序依赖"
+    ],
+    "intro": "first_matching_key 返回第一个值匹配的键。「第一个」指键里最小的那个（按字典序），不是先插入的那个。",
+    "broken_code": "def first_matching_key(d, value):\n    for k in d:    # 谁排在前面就返回谁吗\n        if d[k] == value:\n            return k\n    return None\n",
+    "correct_code": "def first_matching_key(d, value):\n    for k in sorted(d):\n        if d[k] == value:\n            return k\n    return None\n",
+    "hints": [
+      "如果两个键都满足条件，返回哪个",
+      "这个顺序是谁保证的"
+    ],
+    "reference_test": "from target import first_matching_key\n\ndef test_smallest_key_wins():\n    assert first_matching_key({\"b\": 1, \"a\": 1}, 1) == \"a\"\n"
+  },
+  {
+    "id": "019-float-sum",
+    "title": "凑满",
+    "difficulty": 3,
+    "tags": [
+      "numeric",
+      "数值精度",
+      "浮点累加"
+    ],
+    "intro": "fully_paid 判断几笔付款加起来是否正好付清 total。它对整十整百的账总是对的。",
+    "broken_code": "def fully_paid(payments, total):\n    amount = 0.0\n    for p in payments:\n        amount += p    # 一笔一笔加出来的数，正好等于 total 吗\n    return amount == total\n",
+    "correct_code": "def fully_paid(payments, total):\n    amount = 0.0\n    for p in payments:\n        amount += p\n    return abs(amount - total) < 1e-9\n",
+    "hints": [
+      "0.1 + 0.2 在计算机里正好等于 0.3 吗",
+      "十笔 0.1 一笔一笔加出来，再和 1.0 比一比"
+    ],
+    "reference_test": "from target import fully_paid\n\ndef test_ten_dimes_paid_off():\n    assert fully_paid([0.1] * 10, 1.0)\n"
+  },
+  {
+    "id": "021-no-seed",
+    "title": "洗牌",
+    "difficulty": 3,
+    "tags": [
+      "sideeffect",
+      "副作用",
+      "随机数"
+    ],
+    "intro": "lucky_number 返回 0 到 999999 之间的幸运号。同一个随机种子之下，它给出的号应该一样。",
+    "broken_code": "import random\n\ndef lucky_number():\n    random.seed()    # 每次都重新洗牌\n    return random.randrange(1000000)\n",
+    "correct_code": "import random\n\ndef lucky_number():\n    return random.randrange(1000000)\n",
+    "hints": [
+      "想让随机数可断言，调用前得先做什么",
+      "仔细看函数体内，是谁在偷偷重新洗牌"
+    ],
+    "reference_test": "import random\nfrom target import lucky_number\n\ndef test_number_follows_the_seed():\n    random.seed(42)\n    assert lucky_number() == 670487\n"
+  },
+  {
+    "id": "004-is-zero",
+    "title": "相等",
+    "difficulty": 4,
+    "tags": [
+      "numeric",
+      "数值精度",
+      "浮点比较"
+    ],
+    "intro": "is_zero 判断一个数是不是零。它对整数总是对的。",
+    "broken_code": "def is_zero(x):\n    return x == 0.0    # 浮点运算的结果，也正好等于 0.0 吗\n",
+    "correct_code": "def is_zero(x):\n    return abs(x) < 1e-9\n",
+    "hints": [
+      "试一个看起来是 0 的表达式",
+      "0.1 + 0.2 - 0.3 等于 0 吗"
+    ],
+    "reference_test": "from target import is_zero\n\ndef test_looks_like_zero():\n    assert is_zero(0.1 + 0.2 - 0.3)\n"
+  },
+  {
+    "id": "011-order",
+    "title": "顺序",
+    "difficulty": 4,
+    "tags": [
+      "isolation",
+      "测试隔离",
+      "测试顺序"
+    ],
+    "intro": "add_record 记录一条数据并返回记录列表。每次调用返回的，应该只包含这一次的新记录。",
+    "broken_code": "records = []\n\ndef add_record(text):\n    records.append(text)    # 所有调用的记录，都堆在同一个列表里\n    return records\n",
+    "correct_code": "def add_record(text):\n    return [text]\n",
+    "hints": [
+      "单独跑这个测试试试，再和别的测试一起跑",
+      "有没有东西是两次调用共享的"
+    ],
+    "reference_test": "from target import add_record\n\ndef test_first_call():\n    assert add_record(\"a\") == [\"a\"]\n\ndef test_second_call():\n    assert add_record(\"b\") == [\"b\"]\n"
+  },
+  {
+    "id": "014-today",
+    "title": "今天几号",
+    "difficulty": 4,
+    "tags": [
+      "sideeffect",
+      "副作用",
+      "隐式输入"
+    ],
+    "intro": "distance_from_2020 计算某个日期距离 2020-01-01 的天数，它应该接受日期参数：distance_from_2020(today)。一个自己决定「今天是几号」的函数，是没法写测试的。",
+    "broken_code": "from datetime import date\n\ndef distance_from_2020():\n    today = date.today()    # \"今天\"由它自己决定\n    return (today - date(2020, 1, 1)).days\n",
+    "correct_code": "from datetime import date\n\ndef distance_from_2020(today):\n    return (today - date(2020, 1, 1)).days\n",
+    "hints": [
+      "这个函数每次运行结果一样吗",
+      "能不能把\"今天\"变成参数"
+    ],
+    "reference_test": "from datetime import date\nfrom target import distance_from_2020\n\ndef test_known_date():\n    assert distance_from_2020(date(2021, 1, 1)) == 366\n"
+  },
+  {
+    "id": "018-tmp-file",
+    "title": "残留",
+    "difficulty": 4,
+    "tags": [
+      "isolation",
+      "测试隔离",
+      "文件污染"
+    ],
+    "intro": "save_snapshot 保存一份状态快照，read_snapshot 读回快照内容（一个字符串列表）。快照记录的是「此刻」：写下一份时，文件里应该只有这一份。",
+    "broken_code": "from pathlib import Path\n\nSNAPSHOT_FILE = Path(\"snapshot.txt\")\n\ndef save_snapshot(text):\n    with SNAPSHOT_FILE.open(\"a\", encoding=\"utf-8\") as f:    # 上一次的快照，还留在文件里\n        f.write(text + \"\\n\")\n\ndef read_snapshot():\n    with SNAPSHOT_FILE.open(encoding=\"utf-8\") as f:\n        return f.read().splitlines()\n",
+    "correct_code": "from pathlib import Path\n\nSNAPSHOT_FILE = Path(\"snapshot.txt\")\n\ndef save_snapshot(text):\n    with SNAPSHOT_FILE.open(\"w\", encoding=\"utf-8\") as f:\n        f.write(text + \"\\n\")\n\ndef read_snapshot():\n    with SNAPSHOT_FILE.open(encoding=\"utf-8\") as f:\n        return f.read().splitlines()\n",
+    "hints": [
+      "每个测试单独跑都能过，合在一起就挂——中间共享了什么",
+      "保存第二份快照时，第一份去了哪里"
+    ],
+    "reference_test": "from target import save_snapshot, read_snapshot\n\ndef test_first_snapshot():\n    save_snapshot(\"a\")\n    assert read_snapshot() == [\"a\"]\n\ndef test_second_snapshot():\n    save_snapshot(\"b\")\n    assert read_snapshot() == [\"b\"]\n"
+  },
+  {
+    "id": "005-two-answers",
+    "title": "两种答案",
+    "difficulty": 5,
+    "tags": [
+      "contract",
+      "类型与契约"
+    ],
+    "intro": "parse_count 把字符串解析成整数。按约定，解析失败时调用方应该拿到 0。",
+    "broken_code": "def parse_count(text):\n    try:\n        return int(text)\n    except ValueError:\n        return None    # 约定要的是 0，这里给的是什么\n",
+    "correct_code": "def parse_count(text):\n    try:\n        return int(text)\n    except ValueError:\n        return 0\n",
+    "hints": [
+      "非数字字符串会走哪条路",
+      "返回值的类型一直一样吗"
+    ],
+    "reference_test": "from target import parse_count\n\ndef test_bad_input_returns_zero():\n    assert parse_count(\"abc\") == 0\n"
+  },
+  {
+    "id": "020-container-type",
+    "title": "换容器",
+    "difficulty": 5,
+    "tags": [
+      "contract",
+      "类型与契约",
+      "容器类型"
+    ],
+    "intro": "evens 返回列表里的偶数，按原顺序装在列表里。返回值应该一直是列表——一个偶数都没有的时候，也一样。",
+    "broken_code": "def evens(nums):\n    return [n for n in nums if n % 2 == 0] or ()    # 一个偶数都没有时，or 会递出哪个空容器\n",
+    "correct_code": "def evens(nums):\n    return [n for n in nums if n % 2 == 0]\n",
+    "hints": [
+      "返回值的类型一直一样吗",
+      "试一个偶数都没有的输入，再看看拿到的东西能做什么"
+    ],
+    "reference_test": "from target import evens\n\ndef test_no_even_still_returns_list():\n    assert evens([1, 3]) == []\n"
+  }
+]
